@@ -1,0 +1,132 @@
+<section class="form-wrapper animate-in">
+  <div class="form-header">
+    <div>
+      <button class="btn btn-outline btn-sm" (click)="cancel()">
+        <i class="bi bi-arrow-left"></i> Back
+      </button>
+    </div>
+    <div class="form-header-text">
+      <h1 class="page-title">
+        {{ isEditMode ? 'Edit Expense' : 'New Expense' }}
+      </h1>
+      <p class="section-subtitle">
+        {{ isEditMode ? 'Update the details below' : 'Fill in the details to record a new expense' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="form-loading">
+    <div class="skeleton skeleton-card" style="height: 400px;"></div>
+  </div>
+
+  <!-- Form Card -->
+  <div *ngIf="!isLoading" class="card form-card animate-in" style="animation-delay: 0.1s">
+    <div class="card-body">
+      <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <!-- Title -->
+          <div class="form-field">
+            <label class="form-label">
+              <i class="bi bi-type"></i> Title
+            </label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="title"
+              placeholder="e.g. Team lunch at restaurant"
+              [class.is-invalid]="isFieldInvalid('title')"
+            />
+            <small *ngIf="isFieldInvalid('title')" class="field-error">
+              {{ getError('title') }}
+            </small>
+          </div>
+
+          <!-- Category -->
+          <div class="form-field">
+            <label class="form-label">
+              <i class="bi bi-tag"></i> Category
+            </label>
+            <select
+              class="form-control form-select"
+              formControlName="category"
+              [class.is-invalid]="isFieldInvalid('category')"
+            >
+              <option value="" disabled>Select a category</option>
+              <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+            </select>
+            <small *ngIf="isFieldInvalid('category')" class="field-error">
+              {{ getError('category') }}
+            </small>
+          </div>
+
+          <!-- Amount -->
+          <div class="form-field">
+            <label class="form-label">
+              <i class="bi bi-currency-dollar"></i> Amount
+            </label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="amount"
+              placeholder="0.00"
+              step="0.01"
+              [class.is-invalid]="isFieldInvalid('amount')"
+            />
+            <small *ngIf="isFieldInvalid('amount')" class="field-error">
+              {{ getError('amount') }}
+            </small>
+          </div>
+
+          <!-- Date -->
+          <div class="form-field">
+            <label class="form-label">
+              <i class="bi bi-calendar3"></i> Date
+            </label>
+            <input
+              type="date"
+              class="form-control"
+              formControlName="expenseDate"
+              [class.is-invalid]="isFieldInvalid('expenseDate')"
+            />
+            <small *ngIf="isFieldInvalid('expenseDate')" class="field-error">
+              {{ getError('expenseDate') }}
+            </small>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-field full-width">
+            <label class="form-label">
+              <i class="bi bi-chat-text"></i> Notes <span class="optional">(optional)</span>
+            </label>
+            <textarea
+              class="form-control"
+              rows="4"
+              formControlName="notes"
+              placeholder="Add any additional details..."
+              [class.is-invalid]="isFieldInvalid('notes')"
+            ></textarea>
+            <small *ngIf="isFieldInvalid('notes')" class="field-error">
+              {{ getError('notes') }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline btn-lg" (click)="cancel()">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary btn-lg"
+            [disabled]="isSubmitting"
+          >
+            <i class="bi" [ngClass]="isSubmitting ? 'bi-hourglass-split' : (isEditMode ? 'bi-check-lg' : 'bi-plus-lg')"></i>
+            {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Expense' : 'Create Expense') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
