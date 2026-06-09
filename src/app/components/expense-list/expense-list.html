@@ -1,0 +1,187 @@
+<!-- Dashboard Header -->
+<section class="dashboard-header animate-in">
+  <div class="header-content">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="section-subtitle">Track and manage all your expenses in one place</p>
+  </div>
+  <button class="btn btn-primary btn-lg" (click)="addExpense()">
+    <i class="bi bi-plus-lg"></i>
+    Add Expense
+  </button>
+</section>
+
+<!-- Stats Cards -->
+<div class="stats-grid animate-in" style="animation-delay: 0.1s">
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-total">
+      <i class="bi bi-receipt"></i>
+    </div>
+    <div class="stat-content">
+      <span class="stat-label">Total Expenses</span>
+      <span class="stat-value">{{ stats().totalCount }}</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-amount">
+      <i class="bi bi-wallet2"></i>
+    </div>
+    <div class="stat-content">
+      <span class="stat-label">Total Spend</span>
+      <span class="stat-value text-primary">{{ stats().totalAmount | currency }}</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-avg">
+      <i class="bi bi-graph-up"></i>
+    </div>
+    <div class="stat-content">
+      <span class="stat-label">Average</span>
+      <span class="stat-value text-success">{{ stats().averageAmount | currency }}</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon stat-icon-high">
+      <i class="bi bi-arrow-up-circle"></i>
+    </div>
+    <div class="stat-content">
+      <span class="stat-label">Highest</span>
+      <span class="stat-value text-danger">{{ stats().highestAmount | currency }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="filter-bar animate-in" style="animation-delay: 0.15s">
+  <div class="search-box">
+    <i class="bi bi-search search-icon"></i>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search expenses..."
+      [(ngModel)]="searchQuery"
+      (keyup.enter)="onSearch()"
+    />
+    <button *ngIf="searchQuery" class="search-clear" (click)="searchQuery = ''; onSearch()">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+
+  <div class="category-chips" *ngIf="categories().length > 0">
+    <button
+      *ngFor="let cat of categories()"
+      class="chip"
+      [class.chip-active]="selectedCategory === cat"
+      (click)="onCategoryFilter(cat)">
+      {{ cat }}
+    </button>
+    <button *ngIf="selectedCategory || searchQuery" class="chip chip-clear" (click)="clearFilters()">
+      <i class="bi bi-x-lg"></i> Clear
+    </button>
+  </div>
+</div>
+
+<!-- Loading Skeleton -->
+<div *ngIf="isLoading()" class="table-skeleton animate-in">
+  <div class="skeleton skeleton-card"></div>
+  <div class="skeleton-rows">
+    <div class="skeleton skeleton-text" *ngFor="let i of [1,2,3,4,5]"></div>
+  </div>
+</div>
+
+<!-- Table Card -->
+<div *ngIf="!isLoading()" class="card table-card animate-in" style="animation-delay: 0.2s">
+  <!-- Empty State -->
+  <div *ngIf="expenses().length === 0" class="empty-state">
+    <div class="empty-illustration">
+      <i class="bi bi-inbox"></i>
+    </div>
+    <h4>No expenses found</h4>
+    <p class="text-muted-custom">
+      {{ searchQuery || selectedCategory
+        ? 'No results match your search criteria. Try adjusting your filters.'
+        : 'Get started by adding your first expense.' }}
+    </p>
+    <button *ngIf="!searchQuery && !selectedCategory" class="btn btn-primary" (click)="addExpense()">
+      <i class="bi bi-plus-lg"></i> Create First Expense
+    </button>
+    <button *ngIf="searchQuery || selectedCategory" class="btn btn-outline" (click)="clearFilters()">
+      Clear Filters
+    </button>
+  </div>
+
+  <!-- Expense Table -->
+  <div *ngIf="expenses().length > 0" class="table-responsive">
+    <table class="expense-table">
+      <thead>
+        <tr>
+          <th>Expense</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Notes</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (expense of expenses(); track expense.id; let i = $index) {
+          <tr class="expense-row" [style.animation-delay]="(i * 0.04) + 's'">
+            <td>
+              <div class="expense-title">{{ expense.title }}</div>
+              <div class="expense-id">#{{ expense.id }}</div>
+            </td>
+            <td>
+              <span class="pill" [ngClass]="getCategoryPillClass(expense.category)">
+                {{ expense.category }}
+              </span>
+            </td>
+            <td class="amount-cell">{{ expense.amount | currency }}</td>
+            <td class="date-cell">{{ expense.expenseDate }}</td>
+            <td class="notes-cell">{{ expense.notes || '—' }}</td>
+            <td>
+              <div class="action-btns">
+                <button class="btn btn-icon btn-ghost" (click)="editExpense(expense.id!)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-icon btn-danger-ghost" (click)="deleteExpense(expense.id!)" title="Delete">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages() > 1" class="pagination-bar">
+    <span class="pagination-info">
+      Page {{ currentPage() + 1 }} of {{ totalPages() }}
+    </span>
+    <div class="pagination-btns">
+      <button
+        class="btn btn-sm btn-outline"
+        [disabled]="currentPage() === 0"
+        (click)="goToPage(currentPage() - 1)">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button
+        *ngFor="let p of getPageNumbers()"
+        class="btn btn-sm"
+        [class.btn-primary]="p === currentPage()"
+        [class.btn-outline]="p !== currentPage()"
+        (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+      <button
+        class="btn btn-sm btn-outline"
+        [disabled]="currentPage() === totalPages() - 1"
+        (click)="goToPage(currentPage() + 1)">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
