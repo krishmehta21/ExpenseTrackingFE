@@ -1,0 +1,43 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand-group">
+        <div class="brand-icon">E</div>
+        <div class="brand-text">
+          <h3>ExpenseFlow</h3>
+          <small>Smart expense tracking</small>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="theme-toggle" (click)="toggleTheme()" [attr.aria-label]="'Toggle theme'">
+          {{ isDark ? '☀️' : '🌙' }}
+        </button>
+        <a routerLink="/" class="btn btn-outline">
+          <i class="bi bi-grid-1x2"></i>
+          Dashboard
+        </a>
+        <a routerLink="/add" class="btn btn-primary btn-lg">
+          <i class="bi bi-plus-lg"></i>
+          New Expense
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Toast Container -->
+  <div class="toast-container">
+    <div *ngFor="let toast of toasts; trackBy: trackToast"
+         class="toast toast-{{ toast.type }}"
+         [class.removing]="toast.removing">
+      <span class="toast-icon">
+        {{ toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ' }}
+      </span>
+      <span class="toast-message">{{ toast.message }}</span>
+    </div>
+  </div>
+</div>
