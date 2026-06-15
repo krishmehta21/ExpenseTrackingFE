@@ -7,7 +7,7 @@ import { Expense, PagedResponse, ExpenseStats } from '../models/expense';
   providedIn: 'root'
 })
 export class ExpenseService {
-  private baseUrl = 'http://localhost:8080/api/expenses';
+  private baseUrl = 'https://expensetrackingbe.onrender.com/api/expenses';
 
   constructor(private http: HttpClient) {}
 
